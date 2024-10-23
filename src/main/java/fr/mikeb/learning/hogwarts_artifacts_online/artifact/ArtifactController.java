@@ -6,6 +6,7 @@ import fr.mikeb.learning.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,7 @@ public class ArtifactController {
     var converted = artifactToArtifactDtoConverter.convert(foundArtifact);
     return new Result(true, StatusCode.SUCCESS, "Find One Success", converted);
   }
+
   @GetMapping("")
   public Result findAllArtifacts() {
     var foundArtifacts = artifactService.findAll();
@@ -56,5 +58,11 @@ public class ArtifactController {
     var updatedArtifact = artifactService.update(artifactId, updateArtifact);
     var updatedArtifactDto = artifactToArtifactDtoConverter.convert(updatedArtifact);
     return new Result(true, StatusCode.SUCCESS, "Update Success", updatedArtifactDto);
+  }
+
+  @DeleteMapping("/{artifactId}")
+  public Result deleteArtifact(@PathVariable String artifactId) {
+    artifactService.delete(artifactId);
+    return new Result(true, StatusCode.SUCCESS, "Delete Success");
   }
 }

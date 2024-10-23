@@ -42,4 +42,11 @@ public class ArtifactService {
         })
         .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
   }
+
+  public void delete(String artifactId) {
+    artifactRepository.findById(artifactId)
+        .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+
+    artifactRepository.deleteById(artifactId);
+  }
 }
