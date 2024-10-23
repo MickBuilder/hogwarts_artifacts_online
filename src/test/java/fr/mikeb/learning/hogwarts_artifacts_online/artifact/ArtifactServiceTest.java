@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,9 +46,9 @@ class ArtifactServiceTest {
     a2.setDescription("An invisibility cloak is used to make the wearer invisible.");
     a2.setImgUrl("imageUrl");
 
-    this.artifacts = new ArrayList<>();
-    this.artifacts.add(a1);
-    this.artifacts.add(a2);
+    artifacts = new ArrayList<>();
+    artifacts.add(a1);
+    artifacts.add(a2);
   }
 
   @AfterEach
@@ -89,7 +90,7 @@ class ArtifactServiceTest {
 
     // When - Act on the target behavior - When steps should cover the method to be tested
     var thrown = catchThrowable(() -> {
-      var returnedArtifact = artifactService.findById("1250808601744904192");
+      artifactService.findById("1250808601744904192");
     });
 
     // Then - Assert expected outcomes
@@ -120,8 +121,8 @@ class ArtifactServiceTest {
     newArtifact.setDescription("Description...");
     newArtifact.setImgUrl("ImageUrl...");
 
-    given(this.idWorker.nextId()).willReturn(123456L);
-    given(this.artifactRepository.save(newArtifact)).willReturn(newArtifact);
+    given(idWorker.nextId()).willReturn(123456L);
+    given(artifactRepository.save(newArtifact)).willReturn(newArtifact);
 
     // When
     var savedArtifact = artifactService.save(newArtifact);
@@ -131,6 +132,52 @@ class ArtifactServiceTest {
     assertThat(savedArtifact.getName()).isEqualTo(newArtifact.getName());
     assertThat(savedArtifact.getDescription()).isEqualTo(newArtifact.getDescription());
     assertThat(savedArtifact.getImgUrl()).isEqualTo(newArtifact.getImgUrl());
-    verify(this.artifactRepository, times(1)).save(newArtifact);
+    verify(artifactRepository, times(1)).save(newArtifact);
+  }
+
+  @Test
+  void testUpdateSuccess() {
+    // Given
+    var oldArtifact = new Artifact();
+    oldArtifact.setId("1250808601744904192");
+    oldArtifact.setName("Invisibility Cloak");
+    oldArtifact.setDescription("An invisibility cloak is used to make the wearer invisible.");
+    oldArtifact.setImgUrl("ImageUrl");
+
+    var update = oldArtifact;
+    update.setDescription("A new description");
+
+    given(artifactRepository.findById("1250808601744904192")).willReturn(Optional.of(oldArtifact));
+    given(artifactRepository.save(oldArtifact)).willReturn(oldArtifact);
+
+    // When
+    var updatedArtifact = artifactService.update("1250808601744904192", update);
+
+    // Then
+    assertThat(updatedArtifact.getId()).isEqualTo(update.getId());
+    assertThat(updatedArtifact.getDescription()).isEqualTo(update.getDescription());
+    verify(artifactRepository, times(1)).findById("1250808601744904192");
+    verify(artifactRepository, times(1)).save(update);
+  }
+
+  @Test
+  void testUpdateNotFound() {
+    // Given
+    var update = new Artifact();
+    update.setId("1250808601744904192");
+    update.setName("Invisibility Cloak");
+    update.setDescription("An invisibility cloak is used to make the wearer invisible.");
+    update.setImgUrl("ImageUrl");
+
+    given(artifactRepository.findById("1250808601744904192")).willReturn(Optional.empty());
+
+    // When
+    assertThrows(
+        ArtifactNotFoundException.class,
+        () -> artifactService.update("1250808601744904192", update)
+    );
+
+    // Then
+    verify(artifactRepository, times(1)).findById("1250808601744904192");
   }
 }

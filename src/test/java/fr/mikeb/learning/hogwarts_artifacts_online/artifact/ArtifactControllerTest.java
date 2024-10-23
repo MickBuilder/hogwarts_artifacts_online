@@ -18,9 +18,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -156,5 +158,52 @@ class ArtifactControllerTest {
         .andExpect(jsonPath("$.data.name").value(savedArtifact.getName()))
         .andExpect(jsonPath("$.data.description").value(savedArtifact.getDescription()))
         .andExpect(jsonPath("$.data.imgUrl").value(savedArtifact.getImgUrl()));
+  }
+
+  @Test
+  void testUpdateArtifactSuccess() throws Exception {
+    // Given
+    var artifactDto = new ArtifactDto(null,
+        "Remembrall",
+        "A new description.",
+        "ImageUrl",
+        null);
+    String json = objectMapper.writeValueAsString(artifactDto);
+
+    var updatedArtifact = new Artifact();
+    updatedArtifact.setId("1250808601744904192");
+    updatedArtifact.setName("Remembrall");
+    updatedArtifact.setDescription("A new description.");
+    updatedArtifact.setImgUrl("ImageUrl");
+
+    given(artifactService.update(eq("1250808601744904192"), Mockito.any(Artifact.class))).willReturn(updatedArtifact);
+
+    // When and then
+    mockMvc.perform(put("/api/v1/artifacts/1250808601744904192").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Update Success"))
+        .andExpect(jsonPath("$.data.id").value(updatedArtifact.getId()))
+        .andExpect(jsonPath("$.data.description").value(updatedArtifact.getDescription()));
+  }
+
+  @Test
+  void testUpdateArtifactErrorWithNonExistentId() throws Exception {
+    // Given
+    var artifactDto = new ArtifactDto(null,
+        "Remembrall",
+        "A new description.",
+        "ImageUrl",
+        null);
+    String json = objectMapper.writeValueAsString(artifactDto);
+
+    given(artifactService.update(eq("1250808601744904192"), Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("1250808601744904192"));
+
+    // When and then
+    mockMvc.perform(put("/api/v1/artifacts/1250808601744904192").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(false))
+        .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+        .andExpect(jsonPath("$.message").value("Could not find artifact with Id 1250808601744904192 :("))
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 }

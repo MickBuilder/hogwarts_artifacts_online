@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,5 +48,13 @@ public class ArtifactController {
     var savedArtifact = artifactService.save(newArtifact);
     var savedArtifactDto = artifactToArtifactDtoConverter.convert(savedArtifact);
     return new Result(true, StatusCode.SUCCESS, "Add Success", savedArtifactDto);
+  }
+
+  @PutMapping("/{artifactId}")
+  public Result updateArtifact(@PathVariable String artifactId, @Valid @RequestBody ArtifactDto artifactDto) {
+    var updateArtifact = artifactDtoToArtifactConverter.convert(artifactDto);
+    var updatedArtifact = artifactService.update(artifactId, updateArtifact);
+    var updatedArtifactDto = artifactToArtifactDtoConverter.convert(updatedArtifact);
+    return new Result(true, StatusCode.SUCCESS, "Update Success", updatedArtifactDto);
   }
 }
