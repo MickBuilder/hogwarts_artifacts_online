@@ -35,7 +35,7 @@ public class ArtifactController {
     return new Result(true, StatusCode.SUCCESS, "Find One Success", converted);
   }
 
-  @GetMapping("")
+  @GetMapping
   public Result findAllArtifacts() {
     var foundArtifacts = artifactService.findAll();
     var converted = foundArtifacts.stream()
@@ -44,7 +44,7 @@ public class ArtifactController {
     return new Result(true, StatusCode.SUCCESS, "Find All Success", converted);
   }
 
-  @PostMapping("")
+  @PostMapping
   public Result addArtifact(@Valid @RequestBody ArtifactDto artifactDto) {
     var newArtifact = artifactDtoToArtifactConverter.convert(artifactDto);
     var savedArtifact = artifactService.save(newArtifact);
