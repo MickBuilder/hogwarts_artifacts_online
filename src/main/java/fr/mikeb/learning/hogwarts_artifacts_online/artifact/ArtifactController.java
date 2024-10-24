@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/artifacts")
+@RequestMapping("${api.endpoint.base-url}/artifacts")
 public class ArtifactController {
   private final ArtifactService artifactService;
   private final ArtifactToArtifactDtoConverter artifactToArtifactDtoConverter;
@@ -29,40 +31,40 @@ public class ArtifactController {
   }
 
   @GetMapping("/{artifactId}")
-  public Result findArtifactById(@PathVariable String artifactId) {
+  public Result<ArtifactDto> findArtifactById(@PathVariable String artifactId) {
     var foundArtifact = artifactService.findById(artifactId);
     var converted = artifactToArtifactDtoConverter.convert(foundArtifact);
-    return new Result(true, StatusCode.SUCCESS, "Find One Success", converted);
+    return new Result<>(true, StatusCode.SUCCESS, "Find One Success", converted);
   }
 
   @GetMapping
-  public Result findAllArtifacts() {
+  public Result<List<ArtifactDto>> findAllArtifacts() {
     var foundArtifacts = artifactService.findAll();
     var converted = foundArtifacts.stream()
         .map(artifactToArtifactDtoConverter::convert)
         .toList();
-    return new Result(true, StatusCode.SUCCESS, "Find All Success", converted);
+    return new Result<>(true, StatusCode.SUCCESS, "Find All Success", converted);
   }
 
   @PostMapping
-  public Result addArtifact(@Valid @RequestBody ArtifactDto artifactDto) {
+  public Result<ArtifactDto> addArtifact(@Valid @RequestBody ArtifactDto artifactDto) {
     var newArtifact = artifactDtoToArtifactConverter.convert(artifactDto);
     var savedArtifact = artifactService.save(newArtifact);
     var savedArtifactDto = artifactToArtifactDtoConverter.convert(savedArtifact);
-    return new Result(true, StatusCode.SUCCESS, "Add Success", savedArtifactDto);
+    return new Result<>(true, StatusCode.SUCCESS, "Add Success", savedArtifactDto);
   }
 
   @PutMapping("/{artifactId}")
-  public Result updateArtifact(@PathVariable String artifactId, @Valid @RequestBody ArtifactDto artifactDto) {
+  public Result<ArtifactDto> updateArtifact(@PathVariable String artifactId, @Valid @RequestBody ArtifactDto artifactDto) {
     var updateArtifact = artifactDtoToArtifactConverter.convert(artifactDto);
     var updatedArtifact = artifactService.update(artifactId, updateArtifact);
     var updatedArtifactDto = artifactToArtifactDtoConverter.convert(updatedArtifact);
-    return new Result(true, StatusCode.SUCCESS, "Update Success", updatedArtifactDto);
+    return new Result<>(true, StatusCode.SUCCESS, "Update Success", updatedArtifactDto);
   }
 
   @DeleteMapping("/{artifactId}")
-  public Result deleteArtifact(@PathVariable String artifactId) {
+  public Result<Void> deleteArtifact(@PathVariable String artifactId) {
     artifactService.delete(artifactId);
-    return new Result(true, StatusCode.SUCCESS, "Delete Success");
+    return new Result<>(true, StatusCode.SUCCESS, "Delete Success");
   }
 }

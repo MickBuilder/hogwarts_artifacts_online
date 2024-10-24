@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/wizards")
+@RequestMapping("${api.endpoint.base-url}/wizards")
 public class WizardController {
   private final WizardService wizardService;
   private final WizardToWizardDtoConverter wizardToWizardDtoConverter;
@@ -29,39 +31,39 @@ public class WizardController {
   }
 
   @GetMapping("/{wizardId}")
-  public Result findWizardById(@PathVariable int wizardId) {
+  public Result<WizardDto> findWizardById(@PathVariable int wizardId) {
     var foundWizard = wizardService.findById(wizardId);
     var foundWizardDto = wizardToWizardDtoConverter.convert(foundWizard);
-    return new Result(true, StatusCode.SUCCESS, "Find One Success", foundWizardDto);
+    return new Result<>(true, StatusCode.SUCCESS, "Find One Success", foundWizardDto);
   }
 
   @GetMapping
-  public Result findAllWizards() {
+  public Result<List<WizardDto>> findAllWizards() {
     var allWizards = wizardService.findAll().stream()
         .map(wizardToWizardDtoConverter::convert)
         .toList();
-    return new Result(true, StatusCode.SUCCESS, "Find All Success", allWizards);
+    return new Result<>(true, StatusCode.SUCCESS, "Find All Success", allWizards);
   }
 
   @PostMapping
-  public Result addWizard(@Valid @RequestBody WizardDto wizardDto) {
+  public Result<WizardDto> addWizard(@Valid @RequestBody WizardDto wizardDto) {
     var newWizard = wizardDtoToWizardConverter.convert(wizardDto);
     var savedWizard = wizardService.save(newWizard);
     var savedWizardDto = wizardToWizardDtoConverter.convert(savedWizard);
-    return new Result(true, StatusCode.SUCCESS, "Add Success", savedWizardDto);
+    return new Result<>(true, StatusCode.SUCCESS, "Add Success", savedWizardDto);
   }
 
   @PutMapping("/{wizardId}")
-  public Result updateWizard(@PathVariable int wizardId, @Valid @RequestBody WizardDto wizardDto) {
+  public Result<WizardDto> updateWizard(@PathVariable int wizardId, @Valid @RequestBody WizardDto wizardDto) {
     var updateWizard = wizardDtoToWizardConverter.convert(wizardDto);
     var updatedWizard = wizardService.update(wizardId, updateWizard);
     var updatedWizardDto = wizardToWizardDtoConverter.convert(updatedWizard);
-    return new Result(true, StatusCode.SUCCESS, "Update Success", updatedWizardDto);
+    return new Result<>(true, StatusCode.SUCCESS, "Update Success", updatedWizardDto);
   }
 
   @DeleteMapping("/{artifactId}")
-  public Result deleteArtifact(@PathVariable int artifactId) {
+  public Result<WizardDto> deleteArtifact(@PathVariable int artifactId) {
     wizardService.delete(artifactId);
-    return new Result(true, StatusCode.SUCCESS, "Delete Success");
+    return new Result<>(true, StatusCode.SUCCESS, "Delete Success");
   }
 }
