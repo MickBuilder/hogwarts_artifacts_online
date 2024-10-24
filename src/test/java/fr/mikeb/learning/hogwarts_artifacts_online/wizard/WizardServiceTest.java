@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,9 +26,31 @@ class WizardServiceTest {
   WizardRepository wizardRepository;
   @InjectMocks
   WizardService wizardService;
+  List<Wizard> wizards;
 
   @BeforeEach
   void setUp() {
+    wizards = new ArrayList<>();
+
+    var w1 = new Wizard();
+    w1.setId(1);
+    w1.setName("Albus Dumbledore");
+    w1.addArtifact(new Artifact());
+    w1.addArtifact(new Artifact());
+    wizards.add(w1);
+
+    var w2 = new Wizard();
+    w2.setId(2);
+    w2.setName("Harry Potter");
+    w2.addArtifact(new Artifact());
+    w2.addArtifact(new Artifact());
+    wizards.add(w2);
+
+    var w3 = new Wizard();
+    w3.setId(3);
+    w3.setName("Neville Longbottom");
+    w3.addArtifact(new Artifact());
+    wizards.add(w3);
   }
 
   @AfterEach
@@ -65,7 +89,19 @@ class WizardServiceTest {
         () -> wizardService.findById(1)
     );
 
-    // Then
     verify(wizardRepository, times(1)).findById(1);
+  }
+
+  @Test
+  void testFindAllSuccess() {
+    // Given
+    given(wizardRepository.findAll()).willReturn(wizards);
+
+    // When
+    var expectedArtifacts = wizardService.findAll();
+
+    // Then
+    assertThat(expectedArtifacts.size()).isEqualTo(wizards.size());
+    verify(wizardRepository, times(1)).findAll();
   }
 }

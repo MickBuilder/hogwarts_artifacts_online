@@ -4,6 +4,8 @@ import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundExce
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class WizardService {
@@ -16,5 +18,9 @@ public class WizardService {
   public Wizard findById(int wizardId) {
     return wizardRepository.findById(wizardId)
         .orElseThrow(() -> new NotFoundException("wizard", wizardId + ""));
+  }
+
+  public List<Wizard> findAll() {
+    return wizardRepository.findAll();
   }
 }

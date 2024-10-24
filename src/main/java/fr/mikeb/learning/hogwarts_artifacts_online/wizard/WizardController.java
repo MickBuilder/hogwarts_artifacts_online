@@ -25,4 +25,11 @@ public class WizardController {
     var foundWizardDto = wizardToWizardDtoConverter.convert(foundWizard);
     return new Result(true, StatusCode.SUCCESS, "Find One Success", foundWizardDto);
   }
+
+  @GetMapping
+  public Result findAllWizards() {
+    var allWizards = wizardService.findAll().stream()
+        .map(wizardToWizardDtoConverter::convert);
+    return new Result(true, StatusCode.SUCCESS, "Find All Success", allWizards);
+  }
 }
