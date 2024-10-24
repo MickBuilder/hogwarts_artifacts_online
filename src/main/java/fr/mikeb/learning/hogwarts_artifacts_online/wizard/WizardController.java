@@ -29,7 +29,8 @@ public class WizardController {
   @GetMapping
   public Result findAllWizards() {
     var allWizards = wizardService.findAll().stream()
-        .map(wizardToWizardDtoConverter::convert);
+        .map(wizardToWizardDtoConverter::convert)
+        .toList();
     return new Result(true, StatusCode.SUCCESS, "Find All Success", allWizards);
   }
 }
