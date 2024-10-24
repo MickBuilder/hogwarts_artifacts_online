@@ -28,4 +28,10 @@ public class WizardService {
     return wizardRepository.save(wizard);
   }
 
+  public Wizard update(int wizardId, Wizard newWizard) {
+    return wizardRepository.findById(wizardId).map(wizard -> {
+      wizard.setName(newWizard.getName());
+      return wizardRepository.save(wizard);
+    }).orElseThrow(() -> new NotFoundException("wizard", wizardId + ""));
+  }
 }

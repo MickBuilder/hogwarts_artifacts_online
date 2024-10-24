@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +28,7 @@ public class WizardController {
   }
 
   @GetMapping("/{wizardId}")
-  public Result findWizardById(@PathVariable Integer wizardId) {
+  public Result findWizardById(@PathVariable int wizardId) {
     var foundWizard = wizardService.findById(wizardId);
     var foundWizardDto = wizardToWizardDtoConverter.convert(foundWizard);
     return new Result(true, StatusCode.SUCCESS, "Find One Success", foundWizardDto);
@@ -47,5 +48,13 @@ public class WizardController {
     var savedWizard = wizardService.save(newWizard);
     var savedWizardDto = wizardToWizardDtoConverter.convert(savedWizard);
     return new Result(true, StatusCode.SUCCESS, "Add Success", savedWizardDto);
+  }
+
+  @PutMapping("/{wizardId}")
+  public Result updateWizard(@PathVariable int wizardId, @Valid @RequestBody WizardDto wizardDto) {
+    var updateWizard = wizardDtoToWizardConverter.convert(wizardDto);
+    var updatedWizard = wizardService.update(wizardId, updateWizard);
+    var updatedWizardDto = wizardToWizardDtoConverter.convert(updatedWizard);
+    return new Result(true, StatusCode.SUCCESS, "Update Success", updatedWizardDto);
   }
 }

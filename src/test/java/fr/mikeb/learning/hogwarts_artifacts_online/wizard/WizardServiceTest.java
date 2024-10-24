@@ -121,4 +121,44 @@ class WizardServiceTest {
     assertThat(savedWizard.getNumberOfArtifacts()).isEqualTo(0);
     verify(wizardRepository, times(1)).save(newWizard);
   }
+
+  @Test
+  void testUpdateSuccess() {
+    // Given
+    var oldWizard = new Wizard();
+    oldWizard.setId(2);
+    oldWizard.setName("Harry Potter");
+
+    var update = oldWizard;
+    update.setName("Harry Potter-update");
+
+    given(wizardRepository.findById(2)).willReturn(Optional.of(oldWizard));
+    given(wizardRepository.save(oldWizard)).willReturn(oldWizard);
+
+    // When
+    var updatedArtifact = wizardService.update(2, update);
+
+    // Then
+    assertThat(updatedArtifact.getName()).isEqualTo(update.getName());
+    verify(wizardRepository, times(1)).findById(2);
+    verify(wizardRepository, times(1)).save(update);
+  }
+
+  @Test
+  void testUpdateNotFound() {
+    // Given
+    var update = new Wizard();
+    update.setName("Harry Potter-update");
+
+    given(wizardRepository.findById(5)).willReturn(Optional.empty());
+
+    // When
+    assertThrows(
+        NotFoundException.class,
+        () -> wizardService.update(5, update)
+    );
+
+    // Then
+    verify(wizardRepository, times(1)).findById(5);
+  }
 }

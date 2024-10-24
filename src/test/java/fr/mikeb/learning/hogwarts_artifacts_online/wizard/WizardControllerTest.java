@@ -20,9 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -133,5 +135,50 @@ class WizardControllerTest {
         .andExpect(jsonPath("$.data.id").isNotEmpty())
         .andExpect(jsonPath("$.data.name").value(savedWizard.getName()))
         .andExpect(jsonPath("$.data.numberOfArtifacts").value(0));
+  }
+
+  @Test
+  void testUpdateWizardSuccess() throws Exception {
+    // Given
+    var wizardDto = new WizardDto(null,
+        "Harry Potter-update",
+        null);
+    String json = objectMapper.writeValueAsString(wizardDto);
+
+    var updatedWizard = new Wizard();
+    updatedWizard.setId(2);
+    updatedWizard.setName("Harry Potter-update");
+    updatedWizard.addArtifact(new Artifact());
+    updatedWizard.addArtifact(new Artifact());
+
+    given(wizardService.update(eq(2), Mockito.any(Wizard.class))).willReturn(updatedWizard);
+
+    // When and then
+    mockMvc.perform(put("/api/v1/wizards/2").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Update Success"))
+        .andExpect(jsonPath("$.data.id").value(updatedWizard.getId()))
+        .andExpect(jsonPath("$.data.name").value(updatedWizard.getName()))
+        .andExpect(jsonPath("$.data.numberOfArtifacts").value(updatedWizard.getNumberOfArtifacts()));
+  }
+
+  @Test
+  void testUpdateWizardErrorWithNonExistentId() throws Exception {
+    // Given
+    var wizardDto = new WizardDto(null,
+        "Harry Potter-update",
+        null);
+    String json = objectMapper.writeValueAsString(wizardDto);
+
+    given(wizardService.update(eq(5), Mockito.any(Wizard.class)))
+        .willThrow(new NotFoundException("artifact", "5"));
+
+    // When and then
+    mockMvc.perform(put("/api/v1/wizards/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(false))
+        .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+        .andExpect(jsonPath("$.message").value("Could not find artifact with Id 5 :("))
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 }

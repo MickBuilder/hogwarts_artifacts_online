@@ -166,7 +166,6 @@ class ArtifactServiceTest {
   void testUpdateNotFound() {
     // Given
     var update = new Artifact();
-    update.setId("1250808601744904192");
     update.setName("Invisibility Cloak");
     update.setDescription("An invisibility cloak is used to make the wearer invisible.");
     update.setImgUrl("ImageUrl");
