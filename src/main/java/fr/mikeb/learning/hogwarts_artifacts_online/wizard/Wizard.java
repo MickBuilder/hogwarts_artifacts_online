@@ -3,6 +3,8 @@ package fr.mikeb.learning.hogwarts_artifacts_online.wizard;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.Artifact;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
@@ -14,6 +16,7 @@ import java.util.Objects;
 @Entity
 public class Wizard implements Serializable {
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
   private String name;
   @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "owner")
@@ -53,5 +56,10 @@ public class Wizard implements Serializable {
 
   public int getNumberOfArtifacts() {
     return artifacts.size();
+  }
+
+  public void removeAllArtifacts() {
+    this.artifacts.forEach(artifact -> artifact.setOwner(null));
+    this.artifacts = new ArrayList<>();
   }
 }

@@ -3,6 +3,7 @@ package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
+import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,7 +108,7 @@ class ArtifactControllerTest {
   @Test
   void testFindArtifactByIdNotFound() throws Exception {
     // Given
-    given(artifactService.findById("1250808601744904191")).willThrow(new ArtifactNotFoundException("1250808601744904191"));
+    given(artifactService.findById("1250808601744904191")).willThrow(new NotFoundException("artifact", "1250808601744904191"));
 
     // When and then
     mockMvc.perform(get("/api/v1/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
@@ -200,7 +201,8 @@ class ArtifactControllerTest {
         null);
     String json = objectMapper.writeValueAsString(artifactDto);
 
-    given(artifactService.update(eq("1250808601744904192"), Mockito.any(Artifact.class))).willThrow(new ArtifactNotFoundException("1250808601744904192"));
+    given(artifactService.update(eq("1250808601744904192"), Mockito.any(Artifact.class)))
+        .willThrow(new NotFoundException("artifact", "1250808601744904192"));
 
     // When and then
     mockMvc.perform(put("/api/v1/artifacts/1250808601744904192").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
@@ -226,7 +228,7 @@ class ArtifactControllerTest {
   @Test
   void testDeleteArtifactErrorWithNonExistent() throws Exception {
     // Given
-    doThrow(new ArtifactNotFoundException("1250808601744904191"))
+    doThrow(new NotFoundException("artifact", "1250808601744904191"))
         .when(artifactService)
             .delete("1250808601744904191");
 

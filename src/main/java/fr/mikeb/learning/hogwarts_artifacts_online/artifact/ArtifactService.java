@@ -1,6 +1,7 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.utils.IdWorker;
+import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class ArtifactService {
 
   public Artifact findById(String artifactId) {
     return artifactRepository.findById(artifactId)
-        .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+        .orElseThrow(() -> new NotFoundException("artifact", artifactId));
   }
 
   public List<Artifact> findAll() {
@@ -40,12 +41,12 @@ public class ArtifactService {
 
           return artifactRepository.save(oldArtifact);
         })
-        .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+        .orElseThrow(() -> new NotFoundException("artifact", artifactId));
   }
 
   public void delete(String artifactId) {
     artifactRepository.findById(artifactId)
-        .orElseThrow(() -> new ArtifactNotFoundException(artifactId));
+        .orElseThrow(() -> new NotFoundException("artifact", artifactId));
 
     artifactRepository.deleteById(artifactId);
   }
