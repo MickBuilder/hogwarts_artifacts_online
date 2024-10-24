@@ -1,6 +1,7 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.wizard;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.Artifact;
+import fr.mikeb.learning.hogwarts_artifacts_online.artifact.ArtifactRepository;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class WizardServiceTest {
+  @Mock
+  ArtifactRepository artifactRepository;
   @Mock
   WizardRepository wizardRepository;
   @InjectMocks
@@ -186,5 +189,77 @@ class WizardServiceTest {
 
     // Then
     verify(wizardRepository, times(1)).findById(5);
+  }
+
+  @Test
+  void testAssignArtifactSuccess() {
+    // Given
+    var a = new Artifact();
+    a.setId("1250808601744904192");
+    a.setName("Invisibility Cloak");
+    a.setDescription("An invisibility cloak is used to make the wearer invisible.");
+    a.setImgUrl("ImageUrl");
+
+    var wizard = wizards.get(1);
+    wizard.addArtifact(a);
+
+    var otherWizard = wizards.get(2);
+
+    given(artifactRepository.findById("1250808601744904191")).willReturn(Optional.of(a));
+    given(wizardRepository.findById(3)).willReturn(Optional.of(otherWizard));
+
+    // When
+    wizardService.assignArtifact(3, "1250808601744904191");
+
+    // Then
+    assertThat(wizard.getArtifacts()).doesNotContain(a);
+    assertThat(otherWizard.getArtifacts()).contains(a);
+    verify(artifactRepository, times(1)).findById("1250808601744904191");
+    verify(wizardRepository, times(1)).findById(3);
+  }
+
+  @Test
+  void testAssignArtifactErrorWithNonExistentWizardId() {
+    // Given
+    Artifact a = new Artifact();
+    a.setId("1250808601744904192");
+    a.setName("Invisibility Cloak");
+    a.setDescription("An invisibility cloak is used to make the wearer invisible.");
+    a.setImgUrl("ImageUrl");
+
+    var wizard = wizards.get(1);
+    wizard.addArtifact(a);
+
+    given(artifactRepository.findById("1250808601744904192")).willReturn(Optional.of(a));
+    given(wizardRepository.findById(5)).willReturn(Optional.empty());
+
+    // When
+    var thrown = assertThrows(
+        NotFoundException.class,
+        () -> this.wizardService.assignArtifact(5, "1250808601744904192")
+    );
+
+    // Then
+    assertThat(thrown)
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Could not find wizard with Id 5 :(");
+    assertThat(a.getOwner().getId()).isEqualTo(2);
+  }
+
+  @Test
+  void testAssignArtifactErrorWithNonExistentArtifactId() {
+    // Given
+    given(this.artifactRepository.findById("1250808601744904192")).willReturn(Optional.empty());
+
+    // When
+    var thrown = assertThrows(
+        NotFoundException.class,
+        () -> this.wizardService.assignArtifact(3, "1250808601744904192")
+    );
+
+    // Then
+    assertThat(thrown)
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Could not find artifact with Id 1250808601744904192 :(");
   }
 }
