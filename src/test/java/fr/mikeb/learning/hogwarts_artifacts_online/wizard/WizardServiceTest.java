@@ -104,4 +104,21 @@ class WizardServiceTest {
     assertThat(expectedArtifacts.size()).isEqualTo(wizards.size());
     verify(wizardRepository, times(1)).findAll();
   }
+
+  @Test
+  void testSaveSuccess() {
+    // Given
+    var newWizard = new Wizard();
+    newWizard.setName("Hermione Granger");
+
+    given(wizardRepository.save(newWizard)).willReturn(newWizard);
+
+    // When
+    var savedWizard = wizardService.save(newWizard);
+
+    // Then
+    assertThat(savedWizard.getName()).isEqualTo(newWizard.getName());
+    assertThat(savedWizard.getNumberOfArtifacts()).isEqualTo(0);
+    verify(wizardRepository, times(1)).save(newWizard);
+  }
 }

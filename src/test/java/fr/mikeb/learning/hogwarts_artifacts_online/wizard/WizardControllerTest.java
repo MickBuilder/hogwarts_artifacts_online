@@ -1,12 +1,15 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.wizard;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.Artifact;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
+import fr.mikeb.learning.hogwarts_artifacts_online.wizard.dto.WizardDto;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +22,7 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -26,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class WizardControllerTest {
   @Autowired
   MockMvc mockMvc;
+  @Autowired
+  ObjectMapper objectMapper;
   @MockBean
   WizardService wizardService;
   List<Wizard> wizards;
@@ -103,5 +109,29 @@ class WizardControllerTest {
         .andExpect(jsonPath("$.data[1].id").value(2))
         .andExpect(jsonPath("$.data[1].name").value("Harry Potter"))
         .andExpect(jsonPath("$.data[2].numberOfArtifacts").value(1));
+  }
+
+  @Test
+  void testAddWizardSuccess() throws Exception {
+    // Given
+    var wizardDto = new WizardDto(null,
+        "Hermione Granger",
+        null);
+    var json = objectMapper.writeValueAsString(wizardDto);
+
+    var savedWizard = new Wizard();
+    savedWizard.setId(4);
+    savedWizard.setName("Hermione Granger");
+
+    given(this.wizardService.save(Mockito.any(Wizard.class))).willReturn(savedWizard);
+
+    // When and then
+    mockMvc.perform(post("/api/v1/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Add Success"))
+        .andExpect(jsonPath("$.data.id").isNotEmpty())
+        .andExpect(jsonPath("$.data.name").value(savedWizard.getName()))
+        .andExpect(jsonPath("$.data.numberOfArtifacts").value(0));
   }
 }

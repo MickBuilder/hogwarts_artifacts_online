@@ -23,4 +23,9 @@ public class WizardService {
   public List<Wizard> findAll() {
     return wizardRepository.findAll();
   }
+
+  public Wizard save(Wizard wizard) {
+    return wizardRepository.save(wizard);
+  }
+
 }
