@@ -1,6 +1,7 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.utils.IdWorker;
+import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.Wizard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +97,7 @@ class ArtifactServiceTest {
 
     // Then - Assert expected outcomes
     assertThat(thrown)
-        .isInstanceOf(ArtifactNotFoundException.class)
+        .isInstanceOf(NotFoundException.class)
         .hasMessage("Could not find artifact with Id 1250808601744904192 :(");
     verify(artifactRepository, times(1)).findById("1250808601744904192");
   }
@@ -174,7 +175,7 @@ class ArtifactServiceTest {
 
     // When
     assertThrows(
-        ArtifactNotFoundException.class,
+        NotFoundException.class,
         () -> artifactService.update("1250808601744904192", update)
     );
 
@@ -209,7 +210,7 @@ class ArtifactServiceTest {
 
     // When
     assertThrows(
-        ArtifactNotFoundException.class,
+        NotFoundException.class,
         () -> artifactService.delete("1250808601744904192")
     );
 

@@ -1,6 +1,5 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.system.exception;
 
-import fr.mikeb.learning.hogwarts_artifacts_online.artifact.ArtifactNotFoundException;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import org.springframework.http.HttpStatus;
@@ -14,9 +13,9 @@ import java.util.HashMap;
 
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
-  @ExceptionHandler(ArtifactNotFoundException.class)
+  @ExceptionHandler(NotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  Result handleArtifactNotFoundException(ArtifactNotFoundException ex) {
+  Result handleArtifactNotFoundException(NotFoundException ex) {
     return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
   }
 
