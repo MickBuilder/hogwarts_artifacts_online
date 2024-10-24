@@ -17,6 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -60,11 +61,7 @@ class WizardServiceTest {
   @Test
   void testFindByIdSuccess() {
     // Given
-    var wizard = new Wizard();
-    wizard.setId(1);
-    wizard.setName("Albus Dumbledore");
-    wizard.addArtifact(new Artifact());
-    wizard.addArtifact(new Artifact());
+    var wizard = wizards.getFirst();
 
     given(wizardRepository.findById(1)).willReturn(Optional.of(wizard));
 
@@ -125,9 +122,7 @@ class WizardServiceTest {
   @Test
   void testUpdateSuccess() {
     // Given
-    var oldWizard = new Wizard();
-    oldWizard.setId(2);
-    oldWizard.setName("Harry Potter");
+    var oldWizard = wizards.get(1);
 
     var update = oldWizard;
     update.setName("Harry Potter-update");
@@ -156,6 +151,37 @@ class WizardServiceTest {
     assertThrows(
         NotFoundException.class,
         () -> wizardService.update(5, update)
+    );
+
+    // Then
+    verify(wizardRepository, times(1)).findById(5);
+  }
+
+  @Test
+  void testDeleteSuccess() {
+    // Given
+    var wizard = wizards.get(1);
+
+    given(wizardRepository.findById(2)).willReturn(Optional.of(wizard));
+    doNothing().when(wizardRepository).deleteById(2);
+
+    // When
+    wizardService.delete(2);
+
+    // Then
+    verify(wizardRepository, times(1)).findById(2);
+    verify(wizardRepository, times(1)).deleteById(2);
+  }
+
+  @Test
+  void testDeleteNotFound() {
+    // Given
+    given(wizardRepository.findById(5)).willReturn(Optional.empty());
+
+    // When
+    assertThrows(
+        NotFoundException.class,
+        () -> wizardService.delete(5)
     );
 
     // Then

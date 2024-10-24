@@ -34,4 +34,13 @@ public class WizardService {
       return wizardRepository.save(wizard);
     }).orElseThrow(() -> new NotFoundException("wizard", wizardId + ""));
   }
+
+  public void delete(int wizardId) {
+    var wizardToBeDeleted = wizardRepository.findById(wizardId)
+        .orElseThrow(() -> new NotFoundException("wizard", wizardId + ""));
+
+    // Before deletion, we will unassign this wizard's owned artifacts.
+    wizardToBeDeleted.removeAllArtifacts();
+    wizardRepository.deleteById(wizardId);
+  }
 }

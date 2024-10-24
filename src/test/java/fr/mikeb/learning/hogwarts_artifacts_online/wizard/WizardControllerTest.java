@@ -22,6 +22,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -176,6 +179,34 @@ class WizardControllerTest {
 
     // When and then
     mockMvc.perform(put("/api/v1/wizards/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(false))
+        .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+        .andExpect(jsonPath("$.message").value("Could not find artifact with Id 5 :("))
+        .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  void testDeleteArtifactSuccess() throws Exception {
+    // Given
+    doNothing().when(wizardService).delete(2);
+
+    // When and then
+    mockMvc.perform(delete("/api/v1/wizards/2").accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Delete Success"))
+        .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  void testDeleteArtifactErrorWithNonExistent() throws Exception {
+    // Given
+    doThrow(new NotFoundException("artifact", "5"))
+        .when(wizardService)
+        .delete(5);
+
+    // When and then
+    mockMvc.perform(delete("/api/v1/wizards/5").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(false))
         .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
         .andExpect(jsonPath("$.message").value("Could not find artifact with Id 5 :("))

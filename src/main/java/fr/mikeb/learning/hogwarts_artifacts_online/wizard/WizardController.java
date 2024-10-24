@@ -6,6 +6,7 @@ import fr.mikeb.learning.hogwarts_artifacts_online.wizard.converter.WizardDtoToW
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.converter.WizardToWizardDtoConverter;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.dto.WizardDto;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,5 +57,11 @@ public class WizardController {
     var updatedWizard = wizardService.update(wizardId, updateWizard);
     var updatedWizardDto = wizardToWizardDtoConverter.convert(updatedWizard);
     return new Result(true, StatusCode.SUCCESS, "Update Success", updatedWizardDto);
+  }
+
+  @DeleteMapping("/{artifactId}")
+  public Result deleteArtifact(@PathVariable int artifactId) {
+    wizardService.delete(artifactId);
+    return new Result(true, StatusCode.SUCCESS, "Delete Success");
   }
 }
