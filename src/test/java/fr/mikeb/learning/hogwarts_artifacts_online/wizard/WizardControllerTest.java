@@ -131,7 +131,7 @@ class WizardControllerTest {
     savedWizard.setId(4);
     savedWizard.setName("Hermione Granger");
 
-    given(this.wizardService.save(Mockito.any(Wizard.class))).willReturn(savedWizard);
+    given(wizardService.save(Mockito.any(Wizard.class))).willReturn(savedWizard);
 
     // When and then
     mockMvc.perform(post(baseUrl + "/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
@@ -222,7 +222,7 @@ class WizardControllerTest {
     doNothing().when(wizardService).assignArtifact(2, "1250808601744904191");
 
     // When and then
-    this.mockMvc.perform(put(baseUrl + "/wizards/2/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(put(baseUrl + "/wizards/2/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(true))
         .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
         .andExpect(jsonPath("$.message").value("Artifact Assignment Success"))
@@ -236,7 +236,7 @@ class WizardControllerTest {
         .when(wizardService).assignArtifact(5, "1250808601744904191");
 
     // When and then
-    this.mockMvc.perform(put(baseUrl + "/wizards/5/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(put(baseUrl + "/wizards/5/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(false))
         .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
         .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
@@ -247,10 +247,10 @@ class WizardControllerTest {
   void testAssignArtifactErrorWithNonExistentArtifactId() throws Exception {
     // Given
     doThrow(new NotFoundException("artifact", "1250808601744904199"))
-        .when(this.wizardService).assignArtifact(2, "1250808601744904199");
+        .when(wizardService).assignArtifact(2, "1250808601744904199");
 
     // When and then
-    this.mockMvc.perform(put(this.baseUrl + "/wizards/2/artifacts/1250808601744904199").accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(put(baseUrl + "/wizards/2/artifacts/1250808601744904199").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(false))
         .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
         .andExpect(jsonPath("$.message").value("Could not find artifact with Id 1250808601744904199 :("))
