@@ -62,4 +62,9 @@ public class Wizard implements Serializable {
     this.artifacts.forEach(artifact -> artifact.setOwner(null));
     this.artifacts = new ArrayList<>();
   }
+
+  public void removeArtifact(Artifact artifact) {
+    artifact.setOwner(null);
+    artifacts.remove(artifact);
+  }
 }
