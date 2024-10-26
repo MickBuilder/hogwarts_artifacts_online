@@ -6,6 +6,7 @@ import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.dto.UserDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,5 +59,11 @@ public class UserController {
     var updatedUser = userService.update(userId, update);
     var updatedUserDto = userToUserDtoConverter.convert(updatedUser);
     return new Result<>(true, StatusCode.SUCCESS, "Update Success", updatedUserDto);
+  }
+
+  @DeleteMapping("/{userId}")
+  public Result<Void> deleteUser(@PathVariable long userId) {
+    userService.delete(userId);
+    return new Result<>(true, StatusCode.SUCCESS, "Delete Success");
   }
 }

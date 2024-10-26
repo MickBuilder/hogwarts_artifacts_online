@@ -37,4 +37,11 @@ public class UserService {
       return userRepository.save(user);
     }).orElseThrow(() -> new NotFoundException("user", userId + ""));
   }
+
+  public void delete(long userId) {
+    userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("user", userId + ""));
+
+    userRepository.deleteById(userId);
+  }
 }

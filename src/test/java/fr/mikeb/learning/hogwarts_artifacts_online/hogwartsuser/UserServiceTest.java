@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -139,19 +140,19 @@ class UserServiceTest {
     update.setEnabled(true);
     update.setRoles("user admin");
 
-    given(this.userRepository.findById(2L)).willReturn(Optional.of(oldUser));
-    given(this.userRepository.save(oldUser)).willReturn(oldUser);
+    given(userRepository.findById(2L)).willReturn(Optional.of(oldUser));
+    given(userRepository.save(oldUser)).willReturn(oldUser);
 
     // When
-    var updatedUser = this.userService.update(2, update);
+    var updatedUser = userService.update(2, update);
 
     // Then
     assertThat(updatedUser.getId()).isEqualTo(2);
     assertThat(updatedUser.getUsername()).isEqualTo(update.getUsername());
     assertThat(updatedUser.isEnabled()).isEqualTo(update.isEnabled());
     assertThat(updatedUser.getRoles()).isEqualTo(update.getRoles());
-    verify(this.userRepository, times(1)).findById(2L);
-    verify(this.userRepository, times(1)).save(oldUser);
+    verify(userRepository, times(1)).findById(2L);
+    verify(userRepository, times(1)).save(oldUser);
   }
 
   @Test
@@ -173,5 +174,40 @@ class UserServiceTest {
         .isInstanceOf(NotFoundException.class)
         .hasMessage("Could not find user with Id 6 :(");
     verify(userRepository, times(1)).findById(6L);
+  }
+
+  @Test
+  void testDeleteSuccess() {
+    // Given
+    var user = new HogwartsUser();
+    user.setId(1L);
+    user.setUsername("john");
+    user.setPassword("123456");
+    user.setEnabled(true);
+    user.setRoles("admin user");
+
+    given(userRepository.findById(1L)).willReturn(Optional.of(user));
+    doNothing().when(userRepository).deleteById(1L);
+
+    // When
+    userService.delete(1L);
+
+    // Then
+    verify(userRepository, times(1)).deleteById(1L);
+  }
+
+  @Test
+  void testDeleteNotFound() {
+    // Given
+    given(userRepository.findById(1L)).willReturn(Optional.empty());
+
+    // When
+    var thrown = assertThrows(NotFoundException.class, () -> userService.delete(1));
+
+    // Then
+    assertThat(thrown)
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Could not find user with Id 1 :(");
+    verify(userRepository, times(1)).findById(1L);
   }
 }

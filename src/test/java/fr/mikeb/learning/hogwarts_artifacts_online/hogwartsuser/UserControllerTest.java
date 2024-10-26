@@ -22,6 +22,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -75,14 +78,14 @@ class UserControllerTest {
   @Test
   void testFindAllUsersSuccess() throws Exception {
     // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
-    given(userService.findAll()).willReturn(this.users);
+    given(userService.findAll()).willReturn(users);
 
     // When and then
     mockMvc.perform(get(baseUrl + "/users").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(true))
         .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
         .andExpect(jsonPath("$.message").value("Find All Success"))
-        .andExpect(jsonPath("$.data", Matchers.hasSize(this.users.size())))
+        .andExpect(jsonPath("$.data", Matchers.hasSize(users.size())))
         .andExpect(jsonPath("$.data[0].id").value(1))
         .andExpect(jsonPath("$.data[0].username").value("john"))
         .andExpect(jsonPath("$.data[1].id").value(2))
@@ -152,13 +155,13 @@ class UserControllerTest {
     updatedUser.setEnabled(false);
     updatedUser.setRoles("user");
 
-    var json = this.objectMapper.writeValueAsString(update);
+    var json = objectMapper.writeValueAsString(update);
 
     // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
-    given(this.userService.update(eq(3L), Mockito.any(HogwartsUser.class))).willReturn(updatedUser);
+    given(userService.update(eq(3L), Mockito.any(HogwartsUser.class))).willReturn(updatedUser);
 
     // When and then
-    this.mockMvc.perform(put(baseUrl + "/users/3").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(put(baseUrl + "/users/3").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(true))
         .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
         .andExpect(jsonPath("$.message").value("Update Success"))
@@ -171,15 +174,40 @@ class UserControllerTest {
   @Test
   void testUpdateUserErrorWithNonExistentId() throws Exception {
     // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
-    given(this.userService.update(
+    given(userService.update(
         eq(5L),
         Mockito.any(HogwartsUser.class))).willThrow(new NotFoundException("user", "5")
     );
     var userDto = new UserDto(5L, "tom123", false, "user");
-    String json = this.objectMapper.writeValueAsString(userDto);
+    String json = objectMapper.writeValueAsString(userDto);
 
     // When and then
-    this.mockMvc.perform(put(baseUrl + "/users/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(put(baseUrl + "/users/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(false))
+        .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+        .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("))
+        .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  void testDeleteUserSuccess() throws Exception {
+    // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
+    doNothing().when(userService).delete(2);
+
+    // When and then
+    mockMvc.perform(delete(baseUrl + "/users/2").accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Delete Success"));
+  }
+
+  @Test
+  void testDeleteUserErrorWithNonExistentId() throws Exception {
+    // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
+    doThrow(new NotFoundException("user", 5+"")).when(userService).delete(5);
+
+    // When and then
+    mockMvc.perform(delete(baseUrl + "/users/5").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(false))
         .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
         .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("))
