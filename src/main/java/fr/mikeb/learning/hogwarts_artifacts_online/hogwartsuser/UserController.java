@@ -6,6 +6,7 @@ import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.dto.UserDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,5 +32,12 @@ public class UserController {
         .toList();
 
     return new Result<>(true, StatusCode.SUCCESS, "Find All Success", users);
+  }
+
+  @GetMapping("/{userId}")
+  public Result<UserDto> findUserById(@PathVariable long userId) {
+    var user = userService.findById(userId);
+    var userDto = userToUserDtoConverter.convert(user);
+    return new Result<>(true, StatusCode.SUCCESS, "Find One Success", userDto);
   }
 }

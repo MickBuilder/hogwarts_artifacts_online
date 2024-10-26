@@ -1,6 +1,7 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
+import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,5 +79,33 @@ class UserControllerTest {
         .andExpect(jsonPath("$.data[0].username").value("john"))
         .andExpect(jsonPath("$.data[1].id").value(2))
         .andExpect(jsonPath("$.data[1].username").value("eric"));
+  }
+
+  @Test
+  void testFindUserByIdSuccess() throws Exception {
+    // Given
+    given(userService.findById(1)).willReturn(users.getFirst());
+
+    // When and then
+    mockMvc.perform(get(baseUrl + "/users/1").accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Find One Success"))
+        .andExpect(jsonPath("$.data.id").value(1))
+        .andExpect(jsonPath("$.data.username").value("john"))
+        .andExpect(jsonPath("$.data.roles").value("admin user"));
+  }
+
+  @Test
+  void testFindUserByIdNotFound() throws Exception {
+    // Given
+    given(userService.findById(6)).willThrow(new NotFoundException("user", "6"));
+
+    // When and then
+    mockMvc.perform(get(baseUrl + "/users/6").accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(false))
+        .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
+        .andExpect(jsonPath("$.message").value("Could not find user with Id 6 :("))
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 }

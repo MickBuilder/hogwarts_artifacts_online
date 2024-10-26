@@ -1,5 +1,6 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser;
 
+import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -67,5 +70,34 @@ class UserServiceTest {
     // Then
     assertThat(users.size()).isEqualTo(hogwartsUsers.size());
     verify(userRepository, times(1)).findAll();
+  }
+
+  @Test
+  void testFindByIdSuccess() {
+    // Given
+    var user = hogwartsUsers.getFirst();
+    given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+    // When
+    var userFound = userService.findById(1L);
+
+    // Then
+    assertThat(userFound.getId()).isEqualTo(user.getId());
+    assertThat(userFound.getUsername()).isEqualTo(user.getUsername());
+    assertThat(userFound.getRoles()).isEqualTo(user.getRoles());
+    verify(userRepository, times(1)).findById(1L);
+  }
+
+  @Test
+  void testFindByIdNotFound() {
+    // Given
+    given(userRepository.findById(6L)).willReturn(Optional.empty());
+
+    // When and Then
+    assertThrows(
+        NotFoundException.class,
+        () -> userService.findById(6L)
+    );
+    verify(userRepository, times(1)).findById(6L);
   }
 }
