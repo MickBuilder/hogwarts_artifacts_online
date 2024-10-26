@@ -175,9 +175,7 @@ class UserControllerTest {
         eq(5L),
         Mockito.any(HogwartsUser.class))).willThrow(new NotFoundException("user", "5")
     );
-
     var userDto = new UserDto(5L, "tom123", false, "user");
-
     String json = this.objectMapper.writeValueAsString(userDto);
 
     // When and then
