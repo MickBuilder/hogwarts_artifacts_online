@@ -100,4 +100,78 @@ class UserServiceTest {
     );
     verify(userRepository, times(1)).findById(6L);
   }
+
+  @Test
+  void testSaveSuccess() {
+    // Given
+    var newUser = new HogwartsUser();
+    newUser.setUsername("lily");
+    newUser.setPassword("123456");
+    newUser.setEnabled(true);
+    newUser.setRoles("user");
+
+    given(userRepository.save(newUser)).willReturn(newUser);
+
+    // When
+    var returnedUser = userService.save(newUser);
+
+    // Then
+    assertThat(returnedUser.getUsername()).isEqualTo(newUser.getUsername());
+    assertThat(returnedUser.getPassword()).isEqualTo(newUser.getPassword());
+    assertThat(returnedUser.isEnabled()).isEqualTo(newUser.isEnabled());
+    assertThat(returnedUser.getRoles()).isEqualTo(newUser.getRoles());
+    verify(userRepository, times(1)).save(newUser);
+  }
+
+  @Test
+  void testUpdateByUserSuccess() {
+    // Given
+    var oldUser = new HogwartsUser();
+    oldUser.setId(2L);
+    oldUser.setUsername("eric");
+    oldUser.setPassword("654321");
+    oldUser.setEnabled(true);
+    oldUser.setRoles("user");
+
+    var update = new HogwartsUser();
+    update.setUsername("eric - update");
+    update.setPassword("654321");
+    update.setEnabled(true);
+    update.setRoles("user admin");
+
+    given(this.userRepository.findById(2L)).willReturn(Optional.of(oldUser));
+    given(this.userRepository.save(oldUser)).willReturn(oldUser);
+
+    // When
+    var updatedUser = this.userService.update(2, update);
+
+    // Then
+    assertThat(updatedUser.getId()).isEqualTo(2);
+    assertThat(updatedUser.getUsername()).isEqualTo(update.getUsername());
+    assertThat(updatedUser.isEnabled()).isEqualTo(update.isEnabled());
+    assertThat(updatedUser.getRoles()).isEqualTo(update.getRoles());
+    verify(this.userRepository, times(1)).findById(2L);
+    verify(this.userRepository, times(1)).save(oldUser);
+  }
+
+  @Test
+  void testUpdateNotFound() {
+    // Given
+    var update = new HogwartsUser();
+    update.setUsername("john - update");
+    update.setPassword("123456");
+    update.setEnabled(true);
+    update.setRoles("admin user");
+
+    given(userRepository.findById(6L)).willReturn(Optional.empty());
+
+    // When
+    var thrown = assertThrows(NotFoundException.class, () -> userService.update(6, update));
+
+    // Then
+    assertThat(thrown)
+        .isInstanceOf(NotFoundException.class)
+        .hasMessage("Could not find user with Id 6 :(");
+    verify(userRepository, times(1)).findById(6L);
+  }
 }

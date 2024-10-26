@@ -5,8 +5,12 @@ import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.converter.UserTo
 import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.dto.UserDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,5 +43,20 @@ public class UserController {
     var user = userService.findById(userId);
     var userDto = userToUserDtoConverter.convert(user);
     return new Result<>(true, StatusCode.SUCCESS, "Find One Success", userDto);
+  }
+
+  @PostMapping
+  public Result<UserDto> addUser(@Valid @RequestBody HogwartsUser user) {
+    var savedUser = userService.save(user);
+    var savedUserDto = userToUserDtoConverter.convert(savedUser);
+    return new Result<>(true, StatusCode.SUCCESS, "Add Success", savedUserDto);
+  }
+
+  @PutMapping("/{userId}")
+  public Result<UserDto> updateUser(@PathVariable long userId, @Valid @RequestBody UserDto updateDto) {
+    var update = userDtoToUserConverter.convert(updateDto);
+    var updatedUser = userService.update(userId, update);
+    var updatedUserDto = userToUserDtoConverter.convert(updatedUser);
+    return new Result<>(true, StatusCode.SUCCESS, "Update Success", updatedUserDto);
   }
 }
