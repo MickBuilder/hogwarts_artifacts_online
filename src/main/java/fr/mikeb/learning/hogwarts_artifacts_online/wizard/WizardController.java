@@ -68,7 +68,7 @@ public class WizardController {
   }
 
   @DeleteMapping("/{artifactId}")
-  public Result<WizardDto> deleteArtifact(@PathVariable int artifactId) {
+  public Result<Void> deleteArtifact(@PathVariable int artifactId) {
     wizardService.delete(artifactId);
     return new Result<>(true, StatusCode.SUCCESS, "Delete Success");
   }
