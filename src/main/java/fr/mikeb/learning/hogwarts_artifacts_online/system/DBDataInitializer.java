@@ -3,7 +3,7 @@ package fr.mikeb.learning.hogwarts_artifacts_online.system;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.Artifact;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.ArtifactRepository;
 import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.HogwartsUser;
-import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.UserRepository;
+import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.UserService;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.Wizard;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.WizardRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 public class DBDataInitializer implements CommandLineRunner {
   private final ArtifactRepository artifactRepository;
   private final WizardRepository wizardRepository;
-  private final UserRepository userRepository;
+  private final UserService userService;
 
-  public DBDataInitializer(ArtifactRepository artifactRepository, WizardRepository wizardRepository, UserRepository userRepository) {
+  public DBDataInitializer(ArtifactRepository artifactRepository, WizardRepository wizardRepository, UserService userService) {
     this.artifactRepository = artifactRepository;
     this.wizardRepository = wizardRepository;
-    this.userRepository = userRepository;
+    this.userService = userService; // cause the logic to hash the password is in the service not the repository
   }
 
   @Override
@@ -104,8 +104,8 @@ public class DBDataInitializer implements CommandLineRunner {
     u3.setEnabled(false);
     u3.setRoles("user");
 
-    userRepository.save(u1);
-    userRepository.save(u2);
-    userRepository.save(u3);
+    userService.save(u1);
+    userService.save(u2);
+    userService.save(u3);
   }
 }
