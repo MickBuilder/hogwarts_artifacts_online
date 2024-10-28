@@ -3,8 +3,11 @@ package fr.mikeb.learning.hogwarts_artifacts_online.system.exception;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,5 +48,35 @@ public class ExceptionHandlerAdvice {
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   Result<String> handleAuthenticationException(Exception ex) {
     return new Result<>(false, StatusCode.UNAUTHORIZED, "username or password is incorrect.", ex.getMessage());
+  }
+
+  @ExceptionHandler(AccountStatusException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  Result<String> handleAccountStatusException(AccountStatusException ex) {
+    return new Result<>(false, StatusCode.UNAUTHORIZED, "User account is abnormal.", ex.getMessage());
+  }
+
+  @ExceptionHandler(InvalidBearerTokenException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  Result<String> handleInvalidBearerTokenException(InvalidBearerTokenException ex) {
+    return new Result<>(false, StatusCode.UNAUTHORIZED, "The access token provided is expired, revoked, malformed or invalid for other reason.", ex.getMessage());
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  Result<String> handleAccessDeniedExceptionException(AccessDeniedException ex) {
+    return new Result<>(false, StatusCode.FORBIDDEN, "No permission.", ex.getMessage());
+  }
+
+  /**
+   * Fallback handles any unhandled exceptions.
+   *
+   * @param ex
+   * @return result string
+   */
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  Result<String> handleOtherException(Exception ex) {
+    return new Result<>(false, StatusCode.INTERNAL_SERVER_ERROR, "A server internal error occurs.", ex.getMessage());
   }
 }
