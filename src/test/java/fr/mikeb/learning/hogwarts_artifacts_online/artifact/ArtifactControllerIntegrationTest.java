@@ -6,27 +6,30 @@ import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Integration tests for Artifact API endpoints.")
 @Tag("integration")
 public class ArtifactControllerIntegrationTest {
@@ -49,7 +52,7 @@ public class ArtifactControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findAllArtifacts (GET)")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Order(1)
   void testFindAllArtifactSuccess() throws Exception {
     mockMvc.perform(get(baseUrl + "/artifacts").accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.flag").value(true))
@@ -60,7 +63,8 @@ public class ArtifactControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findArtifactById (GET)")
-  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+//  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+  @Order(2)
   void testFindArtifactByIdSuccess() throws Exception {
     mockMvc.perform(get(baseUrl + "/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(jsonPath("$.flag").value(true))
