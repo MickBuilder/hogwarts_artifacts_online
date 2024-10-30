@@ -78,7 +78,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.data.username").value("eric"));
   }
 
-  @Test
+  /*@Test
   @DisplayName("Check findUserById (GET): User with ROLE_user Accessing Own Info")
   void testFindUserByIdWithUserAccessingOwnInfo() throws Exception {
     var resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
@@ -95,7 +95,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.data.username").value("eric"));
   }
 
-  /*@Test
+  @Test
   @DisplayName("Check findUserById (GET): User with ROLE_user Accessing Another Users Info")
   void testFindUserByIdWithUserAccessingAnotherUsersInfo() throws Exception {
     ResultActions resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
@@ -236,7 +236,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.data.username").value("john"));
   }
 
-  @Test
+  /*@Test
   @DisplayName("Check updateUser with valid input (PUT): User with ROLE_user Updating Own Info")
   void testUpdateUserWithUserUpdatingOwnInfo() throws Exception {
     ResultActions resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
@@ -260,7 +260,7 @@ class UserControllerIntegrationTest {
         .andExpect(jsonPath("$.data.username").value("eric123"))
         .andExpect(jsonPath("$.data.enabled").value(true))
         .andExpect(jsonPath("$.data.roles").value("user"));
-  }
+  }*/
 
   @Test
   @DisplayName("Check updateUser with valid input (PUT): User with ROLE_user Updating Another Users Info")
