@@ -2,6 +2,7 @@ package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.utils.IdWorker;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
+import io.micrometer.core.annotation.Timed;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class ArtifactService {
         .orElseThrow(() -> new NotFoundException("artifact", artifactId));
   }
 
+  @Timed("findAllArtifactsService.time")
   public List<Artifact> findAll() {
     return artifactRepository.findAll();
   }
