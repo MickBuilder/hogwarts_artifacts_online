@@ -19,6 +19,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+
+import java.util.HashMap;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -216,5 +219,46 @@ public class ArtifactControllerIntegrationTest {
         .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
         .andExpect(jsonPath("$.message").value("Could not find artifact with Id 1250808601744904191 :("))
         .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  void testFindArtifactsByDescription() throws Exception {
+    // Given
+    var searchCriteria = new HashMap<String, String>();
+    searchCriteria.put("description", "Hogwarts");
+    String json = objectMapper.writeValueAsString(searchCriteria);
+
+    var requestParams = new LinkedMultiValueMap<String, String>();
+    requestParams.add("page", "0");
+    requestParams.add("size", "2");
+    requestParams.add("sort", "name,asc");
+
+    // When and then
+    mockMvc.perform(post(baseUrl + "/artifacts/search").contentType(MediaType.APPLICATION_JSON).content(json).params(requestParams).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Search Success"))
+        .andExpect(jsonPath("$.data.content", Matchers.hasSize(2)));
+  }
+
+  @Test
+  void testFindArtifactsByNameAndDescription() throws Exception {
+    // Given
+    var searchCriteria = new HashMap<String, String>();
+    searchCriteria.put("name", "Sword");
+    searchCriteria.put("description", "Hogwarts");
+    String json = objectMapper.writeValueAsString(searchCriteria);
+
+    var requestParams = new LinkedMultiValueMap<String, String>();
+    requestParams.add("page", "0");
+    requestParams.add("size", "2");
+    requestParams.add("sort", "name,asc");
+
+    // When and then
+    mockMvc.perform(post(baseUrl + "/artifacts/search").contentType(MediaType.APPLICATION_JSON).content(json).params(requestParams).accept(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.flag").value(true))
+        .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+        .andExpect(jsonPath("$.message").value("Search Success"))
+        .andExpect(jsonPath("$.data.content", Matchers.hasSize(1)));
   }
 }

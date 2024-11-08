@@ -13,9 +13,14 @@ import io.micrometer.observation.annotation.Observed;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 @Service
 @Transactional
@@ -23,6 +28,14 @@ public class ArtifactService {
   private final ArtifactRepository artifactRepository;
   private final IdWorker idWorker;
   private final ChatClient chatClient;
+
+  // Define a map of functions that map criteria keys to their respective specifications
+  private static final Map<String, Function<String, Specification<Artifact>>> SPEC_MAP = Map.of(
+      "id", ArtifactSpecs::hasId,
+      "name", ArtifactSpecs::containsName,
+      "description", ArtifactSpecs::containsDescription,
+      "ownerName", ArtifactSpecs::hasOwnerName
+  );
 
   public ArtifactService(ArtifactRepository artifactRepository, IdWorker idWorker, ChatClient chatClient) {
     this.artifactRepository = artifactRepository;
@@ -39,6 +52,17 @@ public class ArtifactService {
   @Timed("findAllArtifactsService.time")
   public List<Artifact> findAll() {
     return artifactRepository.findAll();
+  }
+
+  public Page<Artifact> findByCriteria(Map<String, String> searchCriteria, Pageable pageable) {
+    var spec = searchCriteria.entrySet().stream()
+        .filter(entry -> StringUtils.hasLength(entry.getValue()))
+        .map(entry -> SPEC_MAP.getOrDefault(entry.getKey(), s -> null).apply(entry.getValue()))
+        .filter(Objects::nonNull)
+        .reduce(Specification::and)
+        .orElse(Specification.where(null));
+
+    return artifactRepository.findAll(spec, pageable);
   }
 
   public String summarize(List<ArtifactDto> artifacts) throws JsonProcessingException {

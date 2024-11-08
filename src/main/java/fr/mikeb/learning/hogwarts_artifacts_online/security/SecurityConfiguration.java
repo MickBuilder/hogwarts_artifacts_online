@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,6 +56,7 @@ public class SecurityConfiguration {
     return http
         .authorizeHttpRequests(authorizeRequest -> authorizeRequest
             .requestMatchers(HttpMethod.GET, baseUrl + "/artifacts/**").permitAll()
+            .requestMatchers(HttpMethod.POST, baseUrl + "/artifacts/search").permitAll()
             .requestMatchers(HttpMethod.GET, baseUrl + "/users/**").hasAuthority("ROLE_admin")
             .requestMatchers(HttpMethod.POST, baseUrl + "/users").hasAuthority("ROLE_admin")
             .requestMatchers(HttpMethod.PUT, baseUrl + "/users/**").hasAuthority("ROLE_admin")
@@ -65,7 +67,7 @@ public class SecurityConfiguration {
             .anyRequest().authenticated() // Disallow everything else
         )
         .headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable())
-        .csrf(csrf -> csrf.disable())
+        .csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(customBasicAuthenticationEntryPoint))
         .oauth2ResourceServer(oAuth2ResourceServer -> oAuth2ResourceServer

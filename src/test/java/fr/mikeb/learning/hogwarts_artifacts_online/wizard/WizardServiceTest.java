@@ -3,7 +3,6 @@ package fr.mikeb.learning.hogwarts_artifacts_online.wizard;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.Artifact;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.ArtifactRepository;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +56,6 @@ class WizardServiceTest {
     w3.setName("Neville Longbottom");
     w3.addArtifact(new Artifact());
     wizards.add(w3);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test

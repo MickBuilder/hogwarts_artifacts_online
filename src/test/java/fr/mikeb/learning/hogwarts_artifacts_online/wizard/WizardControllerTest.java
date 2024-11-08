@@ -6,7 +6,6 @@ import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.dto.WizardDto;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -69,10 +68,6 @@ class WizardControllerTest {
     w3.setName("Neville Longbottom");
     w3.addArtifact(new Artifact());
     wizards.add(w3);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test
