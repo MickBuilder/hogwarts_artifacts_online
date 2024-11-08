@@ -1,5 +1,6 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.converter.ArtifactDtoToArtifactConverter;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.converter.ArtifactToArtifactDtoConverter;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
@@ -48,6 +49,13 @@ public class ArtifactController {
         .map(artifactToArtifactDtoConverter::convert)
         .toList();
     return new Result<>(true, StatusCode.SUCCESS, "Find All Success", converted);
+  }
+
+  @GetMapping("/summary")
+  public Result<String> summarizeArtifacts() throws JsonProcessingException {
+    var artifactDtos = findAllArtifacts().getData();
+    var summary = artifactService.summarize(artifactDtos);
+    return new Result<>(true, StatusCode.SUCCESS, "Summarize Success", summary);
   }
 
   @PostMapping
