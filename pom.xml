@@ -115,6 +115,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
+        </dependency>
     </dependencies>
 
     <!--    The Spring Cloud Azure Bill of Materials (BOM)-->
