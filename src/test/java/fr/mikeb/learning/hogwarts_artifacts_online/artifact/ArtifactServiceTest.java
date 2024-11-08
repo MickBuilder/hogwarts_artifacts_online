@@ -12,7 +12,6 @@ import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.dto.Message;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.Wizard;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.dto.WizardDto;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,10 +63,6 @@ class ArtifactServiceTest {
     artifacts = new ArrayList<>();
     artifacts.add(a1);
     artifacts.add(a2);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test

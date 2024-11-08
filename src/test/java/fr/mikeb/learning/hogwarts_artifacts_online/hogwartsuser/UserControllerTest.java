@@ -5,7 +5,6 @@ import fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser.dto.UserDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -71,10 +70,6 @@ class UserControllerTest {
     u3.setEnabled(false);
     u3.setRoles("user");
     users.add(u3);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test

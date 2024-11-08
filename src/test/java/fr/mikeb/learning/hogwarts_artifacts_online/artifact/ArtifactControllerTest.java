@@ -5,7 +5,6 @@ import fr.mikeb.learning.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -94,10 +93,6 @@ class ArtifactControllerTest {
     a6.setDescription("The Resurrection Stone allows the holder to bring back deceased loved ones, in a semi-physical form, and communicate with them.");
     a6.setImgUrl("ImageUrl");
     this.artifacts.add(a6);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test

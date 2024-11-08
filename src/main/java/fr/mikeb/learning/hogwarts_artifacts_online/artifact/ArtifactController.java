@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("${api.endpoint.base-url}/artifacts")
 public class ArtifactController {
@@ -48,6 +50,13 @@ public class ArtifactController {
     var artifactDtoPage = artifactPage
         .map(artifactToArtifactDtoConverter::convert);
     return new Result<>(true, StatusCode.SUCCESS, "Find All Success", artifactDtoPage);
+  }
+
+  @PostMapping("/search")
+  public Result<Page<ArtifactDto>> findArtifactsByCriteria(@RequestBody Map<String, String> searchCriteria, Pageable pageable) {
+    var artifactPage = artifactService.findByCriteria(searchCriteria, pageable);
+    var artifactDtoPage = artifactPage.map(artifactToArtifactDtoConverter::convert);
+    return new Result<>(true, StatusCode.SUCCESS, "Search Success", artifactDtoPage);
   }
 
   @GetMapping("/summary")

@@ -16,9 +16,9 @@ public class IdWorker {
 
     private final static long datacenterIdBits = 5L;
 
-    private final static long maxWorkerId = -1L ^ (-1L << workerIdBits);
+    private final static long maxWorkerId = ~(-1L << workerIdBits);
 
-    private final static long maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
+    private final static long maxDatacenterId = ~(-1L << datacenterIdBits);
 
     private final static long sequenceBits = 12L;
 
@@ -28,7 +28,7 @@ public class IdWorker {
 
     private final static long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
 
-    private final static long sequenceMask = -1L ^ (-1L << sequenceBits);
+    private final static long sequenceMask = ~(-1L << sequenceBits);
 
     private static long lastTimestamp = -1L;
 
@@ -69,10 +69,9 @@ public class IdWorker {
             sequence = 0L;
         }
         lastTimestamp = timestamp;
-        long nextId = ((timestamp - twepoch) << timestampLeftShift)
+      return ((timestamp - twepoch) << timestampLeftShift)
                 | (datacenterId << datacenterIdShift)
                 | (workerId << workerIdShift) | sequence;
-        return nextId;
     }
 
     private long tilNextMillis(final long lastTimestamp) {
@@ -88,7 +87,7 @@ public class IdWorker {
     }
 
     protected static long getMaxWorkerId(long datacenterId, long maxWorkerId) {
-        StringBuffer mpid = new StringBuffer();
+        StringBuilder mpid = new StringBuilder();
         mpid.append(datacenterId);
         String name = ManagementFactory.getRuntimeMXBean().getName();
         if (!name.isEmpty()) {

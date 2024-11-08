@@ -1,7 +1,6 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,10 +58,6 @@ class UserServiceTest {
     hogwartsUsers.add(u1);
     hogwartsUsers.add(u2);
     hogwartsUsers.add(u3);
-  }
-
-  @AfterEach
-  void tearDown() {
   }
 
   @Test
