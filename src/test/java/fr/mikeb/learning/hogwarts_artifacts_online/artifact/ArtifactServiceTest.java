@@ -1,8 +1,17 @@
 package fr.mikeb.learning.hogwarts_artifacts_online.artifact;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.mikeb.learning.hogwarts_artifacts_online.artifact.dto.ArtifactDto;
 import fr.mikeb.learning.hogwarts_artifacts_online.artifact.utils.IdWorker;
+import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.ChatClient;
+import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.dto.ChatRequest;
+import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.dto.ChatResponse;
+import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.dto.Choice;
+import fr.mikeb.learning.hogwarts_artifacts_online.client.ai.chat.dto.Message;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import fr.mikeb.learning.hogwarts_artifacts_online.wizard.Wizard;
+import fr.mikeb.learning.hogwarts_artifacts_online.wizard.dto.WizardDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +41,8 @@ class ArtifactServiceTest {
   ArtifactRepository artifactRepository;
   @Mock
   IdWorker idWorker;
+  @Mock
+  ChatClient chatClient;
   @InjectMocks
   ArtifactService artifactService;
   List<Artifact> artifacts;
@@ -93,9 +104,7 @@ class ArtifactServiceTest {
     given(artifactRepository.findById(Mockito.any(String.class))).willReturn(Optional.empty());
 
     // When - Act on the target behavior - When steps should cover the method to be tested
-    var thrown = catchThrowable(() -> {
-      artifactService.findById("1250808601744904192");
-    });
+    var thrown = catchThrowable(() -> artifactService.findById("1250808601744904192"));
 
     // Then - Assert expected outcomes
     assertThat(thrown)
@@ -115,6 +124,37 @@ class ArtifactServiceTest {
     // Then
     assertThat(expectedArtifacts.size()).isEqualTo(artifacts.size());
     verify(artifactRepository, times(1)).findAll();
+  }
+
+  @Test
+  void testSummarizeSuccess() throws JsonProcessingException {
+    // Given
+    var artifactDtos = getArtifactDtos();
+    var objectMapper = new ObjectMapper();
+    var jsonArray = objectMapper.writeValueAsString(artifactDtos);
+
+    var messages = List.of(
+        new Message("system", "Your task is to generate a short summary of a given JSON array in at most 100 words. The summary must include the number of artifacts, each artifact's description, and the ownership information. Don't mention that the summary is from a given JSON array."),
+        new Message("user", jsonArray)
+    );
+    var chatRequest = new ChatRequest("gpt-3.5-turbo", messages);
+    var chatResponse = new ChatResponse(List.of(new Choice(0, new Message("assistant", "A summary of two artifacts owned by Albus Dumbledore."))));
+    given(chatClient.generate(chatRequest)).willReturn(chatResponse);
+
+    // When
+    var summary = artifactService.summarize(artifactDtos);
+
+    // Then
+    assertThat(summary).isEqualTo("A summary of two artifacts owned by Albus Dumbledore.");
+    verify(chatClient, times(1)).generate(chatRequest);
+  }
+
+  private static List<ArtifactDto> getArtifactDtos() {
+    var wizardDto = new WizardDto(1, "Albus Dombledore", 2);
+    return List.of(
+        new ArtifactDto("1250808601744904191", "Deluminator", "A Deluminator is a device invented by Albus Dumbledore that resembles a cigarette lighter. It is used to remove or absorb (as well as return) the light from any light source to provide cover to the user.", "ImageUrl", wizardDto),
+        new ArtifactDto("1250808601744904193", "Elder Wand", "The Elder Wand, known throughout history as the Deathstick or the Wand of Destiny, is an extremely powerful wand made of elder wood with a core of Thestral tail hair.", "ImageUrl", wizardDto)
+    );
   }
 
   @Test
