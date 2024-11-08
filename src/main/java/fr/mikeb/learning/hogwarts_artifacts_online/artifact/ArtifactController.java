@@ -8,6 +8,8 @@ import fr.mikeb.learning.hogwarts_artifacts_online.system.Result;
 import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("${api.endpoint.base-url}/artifacts")
@@ -43,17 +43,16 @@ public class ArtifactController {
   }
 
   @GetMapping
-  public Result<List<ArtifactDto>> findAllArtifacts() {
-    var foundArtifacts = artifactService.findAll();
-    var converted = foundArtifacts.stream()
-        .map(artifactToArtifactDtoConverter::convert)
-        .toList();
-    return new Result<>(true, StatusCode.SUCCESS, "Find All Success", converted);
+  public Result<Page<ArtifactDto>> findAllArtifacts(Pageable pageable) {
+    var artifactPage = artifactService.findAll(pageable);
+    var artifactDtoPage = artifactPage
+        .map(artifactToArtifactDtoConverter::convert);
+    return new Result<>(true, StatusCode.SUCCESS, "Find All Success", artifactDtoPage);
   }
 
   @GetMapping("/summary")
   public Result<String> summarizeArtifacts() throws JsonProcessingException {
-    var artifactDtos = findAllArtifacts().getData();
+    var artifactDtos = artifactService.findAll().stream().map(artifactToArtifactDtoConverter::convert).toList();
     var summary = artifactService.summarize(artifactDtos);
     return new Result<>(true, StatusCode.SUCCESS, "Summarize Success", summary);
   }
