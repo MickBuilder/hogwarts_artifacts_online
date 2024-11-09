@@ -48,7 +48,7 @@ class WizardControllerIntegrationTest {
         MvcResult mvcResult = resultActions.andDo(print()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         var json = new JSONObject(contentAsString);
-        this.token = "Bearer " + json.getJSONObject("data").getString("token");
+        token = "Bearer " + json.getJSONObject("data").getString("token");
     }
 
     @Test
@@ -56,7 +56,7 @@ class WizardControllerIntegrationTest {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
         // Reset H2 database before calling this test case.
     void testFindAllWizardsSuccess() throws Exception {
-        this.mockMvc.perform(get(this.baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Find All Success"))
@@ -66,7 +66,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check findWizardById (GET)")
     void testFindWizardByIdSuccess() throws Exception {
-        this.mockMvc.perform(get(this.baseUrl + "/wizards/1").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards/1").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Find One Success"))
@@ -77,7 +77,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check findWizardById with non-existent id (GET)")
     void testFindWizardByIdNotFound() throws Exception {
-        this.mockMvc.perform(get(this.baseUrl + "/wizards/5").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards/5").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
@@ -91,16 +91,16 @@ class WizardControllerIntegrationTest {
         Wizard a = new Wizard();
         a.setName("Hermione Granger");
 
-        String json = this.objectMapper.writeValueAsString(a);
+        String json = objectMapper.writeValueAsString(a);
 
-        this.mockMvc.perform(post(this.baseUrl + "/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(post(baseUrl + "/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Add Success"))
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
                 .andExpect(jsonPath("$.data.name").value("Hermione Granger"));
 
-        this.mockMvc.perform(get(this.baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Find All Success"))
@@ -114,14 +114,14 @@ class WizardControllerIntegrationTest {
         Wizard a = new Wizard();
         a.setName(""); // Name is not provided.
 
-        var json = this.objectMapper.writeValueAsString(a);
+        var json = objectMapper.writeValueAsString(a);
 
-        this.mockMvc.perform(post(this.baseUrl + "/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(post(baseUrl + "/wizards").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
                 .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
                 .andExpect(jsonPath("$.data.name").value("name is required."));
-        this.mockMvc.perform(get(this.baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Find All Success"))
@@ -135,9 +135,9 @@ class WizardControllerIntegrationTest {
         a.setId(1);
         a.setName("Updated wizard name");
 
-        String json = this.objectMapper.writeValueAsString(a);
+        String json = objectMapper.writeValueAsString(a);
 
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/1").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/1").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Update Success"))
@@ -152,9 +152,9 @@ class WizardControllerIntegrationTest {
         a.setId(5); // This id does not exist in the database.
         a.setName("Updated wizard name");
 
-        String json = this.objectMapper.writeValueAsString(a);
+        String json = objectMapper.writeValueAsString(a);
 
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
@@ -168,14 +168,14 @@ class WizardControllerIntegrationTest {
         a.setId(1); // Valid id
         a.setName(""); // Updated name is empty.
 
-        String json = this.objectMapper.writeValueAsString(a);
+        String json = objectMapper.writeValueAsString(a);
 
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/1").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/1").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.INVALID_ARGUMENT))
                 .andExpect(jsonPath("$.message").value("Provided arguments are invalid, see data for details."))
                 .andExpect(jsonPath("$.data.name").value("name is required."));
-        this.mockMvc.perform(get(this.baseUrl + "/wizards/1").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards/1").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Find One Success"))
@@ -186,11 +186,11 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check deleteWizard with valid input (DELETE)")
     void testDeleteWizardSuccess() throws Exception {
-        this.mockMvc.perform(delete(this.baseUrl + "/wizards/3").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(delete(baseUrl + "/wizards/3").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Delete Success"));
-        this.mockMvc.perform(get(this.baseUrl + "/wizards/3").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(get(baseUrl + "/wizards/3").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 3 :("))
@@ -200,7 +200,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check deleteWizard with non-existent id (DELETE)")
     void testDeleteWizardErrorWithNonExistentId() throws Exception {
-        this.mockMvc.perform(delete(this.baseUrl + "/wizards/5").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(delete(baseUrl + "/wizards/5").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
@@ -210,7 +210,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check assignArtifact with valid ids (PUT)")
     void testAssignArtifactSuccess() throws Exception {
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/2/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/2/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(true))
                 .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
                 .andExpect(jsonPath("$.message").value("Artifact Assignment Success"))
@@ -220,7 +220,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check assignArtifact with non-existent wizard id (PUT)")
     void testAssignArtifactErrorWithNonExistentWizardId() throws Exception {
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/5/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/5/artifacts/1250808601744904191").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find wizard with Id 5 :("))
@@ -230,7 +230,7 @@ class WizardControllerIntegrationTest {
     @Test
     @DisplayName("Check assignArtifact with non-existent artifact id (PUT)")
     void testAssignArtifactErrorWithNonExistentArtifactId() throws Exception {
-        this.mockMvc.perform(put(this.baseUrl + "/wizards/2/artifacts/1250808601744904199").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, this.token))
+        mockMvc.perform(put(baseUrl + "/wizards/2/artifacts/1250808601744904199").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
                 .andExpect(jsonPath("$.message").value("Could not find artifact with Id 1250808601744904199 :("))
