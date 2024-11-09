@@ -309,12 +309,13 @@ class UserControllerIntegrationTest {
 
   @Test
   @DisplayName("Check deleteUser with insufficient permission (DELETE)")
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void testDeleteUserNoAccessAsRoleUser() throws Exception {
-    ResultActions resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
-    MvcResult mvcResult = resultActions.andDo(print()).andReturn();
-    String contentAsString = mvcResult.getResponse().getContentAsString();
-    JSONObject json = new JSONObject(contentAsString);
-    String ericToken = "Bearer " + json.getJSONObject("data").getString("token");
+    var resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
+    var mvcResult = resultActions.andDo(print()).andReturn();
+    var contentAsString = mvcResult.getResponse().getContentAsString();
+    var json = new JSONObject(contentAsString);
+    var ericToken = "Bearer " + json.getJSONObject("data").getString("token");
 
     mockMvc.perform(delete(baseUrl + "/users/2").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, ericToken))
         .andExpect(jsonPath("$.flag").value(false))
