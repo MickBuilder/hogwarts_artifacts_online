@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -126,6 +128,43 @@ class UserServiceTest {
   }
 
   @Test
+  void testUpdateByAdminSuccess() {
+    // Given
+    var oldUser = new HogwartsUser();
+    oldUser.setId(2L);
+    oldUser.setUsername("eric");
+    oldUser.setPassword("654321");
+    oldUser.setEnabled(true);
+    oldUser.setRoles("user");
+
+    var update = new HogwartsUser();
+    update.setUsername("eric - update");
+    update.setPassword("654321");
+    update.setEnabled(true);
+    update.setRoles("admin user");
+
+    given(userRepository.findById(2L)).willReturn(Optional.of(oldUser));
+    given(userRepository.save(oldUser)).willReturn(oldUser);
+
+    HogwartsUser hogwartsUser = new HogwartsUser();
+    hogwartsUser.setRoles("admin");
+    var myUserPrincipal = new UserPrincipal(hogwartsUser);
+
+    var securityContext = SecurityContextHolder.createEmptyContext();
+    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(myUserPrincipal, null, myUserPrincipal.getAuthorities()));
+    SecurityContextHolder.setContext(securityContext);
+
+    // When
+    var updatedUser = userService.update(2L, update);
+
+    // Then
+    assertThat(updatedUser.getId()).isEqualTo(2);
+    assertThat(updatedUser.getUsername()).isEqualTo(update.getUsername());
+    verify(userRepository, times(1)).findById(2L);
+    verify(userRepository, times(1)).save(oldUser);
+  }
+
+  @Test
   void testUpdateByUserSuccess() {
     // Given
     var oldUser = new HogwartsUser();
@@ -139,19 +178,25 @@ class UserServiceTest {
     update.setUsername("eric - update");
     update.setPassword("654321");
     update.setEnabled(true);
-    update.setRoles("user admin");
+    update.setRoles("user");
 
     given(userRepository.findById(2L)).willReturn(Optional.of(oldUser));
     given(userRepository.save(oldUser)).willReturn(oldUser);
 
+    HogwartsUser hogwartsUser = new HogwartsUser();
+    hogwartsUser.setRoles("user");
+    var myUserPrincipal = new UserPrincipal(hogwartsUser);
+
+    var securityContext = SecurityContextHolder.createEmptyContext();
+    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(myUserPrincipal, null, myUserPrincipal.getAuthorities()));
+    SecurityContextHolder.setContext(securityContext);
+
     // When
-    var updatedUser = userService.update(2, update);
+    HogwartsUser updatedUser = userService.update(2, update);
 
     // Then
     assertThat(updatedUser.getId()).isEqualTo(2);
     assertThat(updatedUser.getUsername()).isEqualTo(update.getUsername());
-    assertThat(updatedUser.isEnabled()).isEqualTo(update.isEnabled());
-    assertThat(updatedUser.getRoles()).isEqualTo(update.getRoles());
     verify(userRepository, times(1)).findById(2L);
     verify(userRepository, times(1)).save(oldUser);
   }

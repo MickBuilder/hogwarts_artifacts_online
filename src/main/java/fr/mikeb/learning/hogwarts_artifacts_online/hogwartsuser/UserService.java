@@ -2,6 +2,7 @@ package fr.mikeb.learning.hogwarts_artifacts_online.hogwartsuser;
 
 import fr.mikeb.learning.hogwarts_artifacts_online.system.exception.NotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,13 +37,19 @@ public class UserService implements UserDetailsService {
   }
 
   public HogwartsUser update(long userId, HogwartsUser update) {
-    return userRepository.findById(userId).map(user -> {
-      user.setUsername(update.getUsername());
-      user.setEnabled(update.isEnabled());
-      user.setRoles(update.getRoles());
+    var oldUser = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user", userId + ""));
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      return userRepository.save(user);
-    }).orElseThrow(() -> new NotFoundException("user", userId + ""));
+    // if the user is not an admin, then the user can only update her username
+    if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_admin"))) {
+      oldUser.setUsername(update.getUsername());
+    } else { // If the user is an admin, then the user can update username, enabled, and roles.
+      oldUser.setUsername(update.getUsername());
+      oldUser.setEnabled(update.isEnabled());
+      oldUser.setRoles(update.getRoles());
+    }
+
+    return userRepository.save(oldUser);
   }
 
   public void delete(long userId) {
