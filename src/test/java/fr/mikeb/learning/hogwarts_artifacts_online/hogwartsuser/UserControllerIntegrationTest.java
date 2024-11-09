@@ -6,11 +6,8 @@ import org.hamcrest.Matchers;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,16 +21,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Integration tests for User API endpoints")
 @Tag("integration")
 @ActiveProfiles(value = "dev")
@@ -58,7 +54,7 @@ class UserControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findAllUsers (GET)")
-  @Order(1)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void testFindAllUsersSuccess() throws Exception {
     mockMvc.perform(get(baseUrl + "/users").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(jsonPath("$.flag").value(true))
@@ -69,7 +65,7 @@ class UserControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findUserById (GET): User with ROLE_admin Accessing Any User's Info")
-  @Order(2)
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void testFindUserByIdWithAdminAccessingAnyUsersInfo() throws Exception {
     mockMvc.perform(get(baseUrl + "/users/2").accept(MediaType.APPLICATION_JSON).header(HttpHeaders.AUTHORIZATION, token))
         .andExpect(jsonPath("$.flag").value(true))
@@ -81,7 +77,6 @@ class UserControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findUserById (GET): User with ROLE_user Accessing Own Info")
-  @Order(3)
   void testFindUserByIdWithUserAccessingOwnInfo() throws Exception {
     var resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
     var mvcResult = resultActions.andDo(print()).andReturn();
@@ -99,7 +94,6 @@ class UserControllerIntegrationTest {
 
   @Test
   @DisplayName("Check findUserById (GET): User with ROLE_user Accessing Another Users Info")
-  @Order(4)
   void testFindUserByIdWithUserAccessingAnotherUsersInfo() throws Exception {
     var resultActions = mockMvc.perform(post(baseUrl + "/users/login").with(httpBasic("eric", "654321"))); // httpBasic() is from spring-security-test.
     var mvcResult = resultActions.andDo(print()).andReturn();
