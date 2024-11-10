@@ -8,6 +8,7 @@ import fr.mikeb.learning.hogwarts_artifacts_online.system.StatusCode;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.endpoint.base-url}/users")
@@ -65,5 +67,14 @@ public class UserController {
   public Result<Void> deleteUser(@PathVariable long userId) {
     userService.delete(userId);
     return new Result<>(true, StatusCode.SUCCESS, "Delete Success");
+  }
+
+  @PatchMapping("/{userId}/change-password")
+  public Result<Void> changeUserPassword(@PathVariable long userId, @RequestBody Map<String, String> passwordMap) {
+    var oldPassword = passwordMap.get("oldPassword");
+    var newPassword = passwordMap.get("newPassword");
+    var confirmNewPassword = passwordMap.get("confirmNewPassword");
+    userService.changePassword(userId, oldPassword, newPassword, confirmNewPassword);
+    return new Result<>(true, StatusCode.SUCCESS, "Change Password Success", null);
   }
 }
